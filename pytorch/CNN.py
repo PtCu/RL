@@ -33,7 +33,7 @@ if not(os.path.exists('./mnist/')) or not os.listdir('./mnist/'):
     DOWNLOAD_MNIST = True
 
 train_data = torchvision.datasets.MNIST(
-    root='./mnist/',
+    root='./pytorch/mnist/',
     train=True,                                     # this is training data
     # Converts a PIL.Image or numpy.ndarray to
     transform=torchvision.transforms.ToTensor(),
@@ -53,7 +53,7 @@ train_loader = Data.DataLoader(
     dataset=train_data, batch_size=BATCH_SIZE, shuffle=True)
 
 # pick 2000 samples to speed up testing
-test_data = torchvision.datasets.MNIST(root='./mnist/', train=False)
+test_data = torchvision.datasets.MNIST(root='./pytorch/mnist/', train=False)
 test_x = torch.unsqueeze(test_data.test_data, dim=1).type(torch.FloatTensor)[
     :2000]/255.   # shape from (2000, 28, 28) to (2000, 1, 28, 28), value in range(0,1)
 test_y = test_data.test_labels[:2000]

@@ -107,10 +107,13 @@ for i_episode in range(400):
     s = env.reset()
     ep_r = 0
     while True:
+        #刷新环境
         env.render()
+
+        #DQN根据观测值选择行为
         a = dqn.choose_action(s)
 
-        # take action
+        #环境根据行为给出下一个state,reward,是否终止
         s_, r, done, info = env.step(a)
 
         # modify the reward
@@ -120,6 +123,7 @@ for i_episode in range(400):
             env.theta_threshold_radians - 0.5
         r = r1 + r2
 
+        #DQN存储记忆
         dqn.store_transition(s, a, r, s_)
 
         ep_r += r
@@ -131,4 +135,6 @@ for i_episode in range(400):
 
         if done:
             break
+
+        #将下一个state_变为下次循环的state
         s = s_
