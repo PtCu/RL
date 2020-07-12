@@ -52,14 +52,15 @@ eps = np.finfo(np.float64).eps.item()
 
 def select_action(state):
     state = torch.from_numpy(state).float().unsqueeze(0)
-    probs = policy(state)
+    probs = policy(state)   #输入state,输出动作的概率
     m = Categorical(probs)  # 功能：根据概率分布来产生sample，产生的sample是输入tensor的index
-    action = m.sample()
-    policy.saved_log_probs.append(m.log_prob(action))
+    action = m.sample() #从index中选一个
+    policy.saved_log_probs.append(m.log_prob(action))   #取概率的对数，并储存下来
     return action.item()
 
 
 def finish_episode():
+    #R为一大轮episode的奖励，小r为一步的奖励
     R = 0
     policy_loss = []
     returns = []
@@ -68,6 +69,7 @@ def finish_episode():
         returns.insert(0, R)
     returns = torch.tensor(returns)
     returns = (returns - returns.mean()) / (returns.std() + eps)
+    # 使用zip()函数来可以把列表合并，并创建一个元组对的列表。
     for log_prob, R in zip(policy.saved_log_probs, returns):
         policy_loss.append(-log_prob * R)
     optimizer.zero_grad()
