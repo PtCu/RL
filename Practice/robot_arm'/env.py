@@ -28,7 +28,8 @@ class ArmEnv(object):
         a1xy = np.array([200., 200.])    # a1 start (x0, y0)
         a1xy_ = np.array([np.cos(a1r), np.sin(a1r)]) * a1l + a1xy  # a1 end and a2 start (x1, y1)
         finger = np.array([np.cos(a1r + a2r), np.sin(a1r + a2r)]) * a2l + a1xy_  # a2 end (x2, y2)
-        # normalize features
+
+        # normalize features     根据特征给出reward以解决离散问题（距离蓝点距离作为reward大小）
         dist1 = [(self.goal['x'] - a1xy_[0]) / 400, (self.goal['y'] - a1xy_[1]) / 400]
         dist2 = [(self.goal['x'] - finger[0]) / 400, (self.goal['y'] - finger[1]) / 400]
         r = -np.sqrt(dist2[0]**2+dist2[1]**2)
@@ -38,7 +39,7 @@ class ArmEnv(object):
         ) and (self.goal['y'] - self.goal['l']/2 < finger[1] < self.goal['y'] + self.goal['l']/2):
             r += 1.
             self.on_goal += 1
-            if self.on_goal > 50:
+            if self.on_goal > 50:   #连续停留50步
                 done = True
         else:
             self.on_goal = 0
@@ -86,9 +87,9 @@ class Viewer(pyglet.window.Window):
         pyglet.gl.glClearColor(1, 1, 1, 1)
         self.arm_info = arm_info
         self.center_coord = np.array([200, 200])    #中心点信息
-
+        self.goal_info = goal
         self.batch = pyglet.graphics.Batch()
-        self.point = self.batch.add(
+        self.goal = self.batch.add(
             4, pyglet.gl.GL_QUADS, None,    # 4 corners
             ('v2f',  [goal['x'] - goal['l'] / 2, goal['y'] - goal['l'] / 2,
                       goal['x'] - goal['l'] / 2, goal['y'] + goal['l'] / 2,
@@ -122,6 +123,17 @@ class Viewer(pyglet.window.Window):
         self.batch.draw()
 
     def _update_arm(self):
+         # update goal
+        self.goal.vertices = (
+            self.goal_info['x'] - self.goal_info['l'] /
+            2, self.goal_info['y'] - self.goal_info['l']/2,
+            self.goal_info['x'] + self.goal_info['l'] /
+            2, self.goal_info['y'] - self.goal_info['l']/2,
+            self.goal_info['x'] + self.goal_info['l'] /
+            2, self.goal_info['y'] + self.goal_info['l']/2,
+            self.goal_info['x'] - self.goal_info['l']/2, self.goal_info['y'] + self.goal_info['l']/2)
+
+        # update arm
         (a1l, a2l) = self.arm_info['l']     # radius, arm length
         (a1r, a2r) = self.arm_info['r']     # radian, angle
         a1xy = self.center_coord            # a1 start (x0, y0)
@@ -145,6 +157,9 @@ class Viewer(pyglet.window.Window):
         self.arm1.vertices = np.concatenate((xy01, xy02, xy11, xy12))
         self.arm2.vertices = np.concatenate((xy11_, xy12_, xy21, xy22))
 
+    def on_mouse_motion(self, x, y, dx, dy):
+        self.goal_info['x'] = x
+        self.goal_info['y'] = y
 
 if __name__ == "__main__":
     env = ArmEnv()
