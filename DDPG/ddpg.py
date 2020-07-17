@@ -32,7 +32,7 @@ class ANet(nn.Module):   # ae(s)=a
         super(ANet, self).__init__()
         self.fc1 = nn.Linear(s_dim, 30)
         self.fc1.weight.data.normal_(0, 0.1)  # initialization
-        self.out = nn.Linear(30, a_dim)
+        self.out = nn.Linear(30, a_dim)         #a_dim=1
         self.out.weight.data.normal_(0, 0.1)  # initialization
 
     def forward(self, x):

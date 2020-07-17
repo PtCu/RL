@@ -1,3 +1,4 @@
 *.pyc
 *.json
 pytorch/mnist/
+Practice/pytorch/mnist/MNIST/processed/test.pt
