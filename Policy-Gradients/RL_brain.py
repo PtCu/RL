@@ -52,7 +52,12 @@ eps = np.finfo(np.float64).eps.item()
 
 def select_action(state):
     state = torch.from_numpy(state).float().unsqueeze(0)
-    probs = policy(state)   #输入state,输出动作的概率
+    probs = policy(state)  #输入state,输出动作的概率
+    
+    # 作用是创建以参数probs为标准的类别分布，样本是来自 “0 … K-1” 的整数，
+    # 其中 K 是probs参数的长度。也就是说，按照传入的probs中给定的概率，
+    # 在相应的位置处进行取样，取样返回的是该位置的整数索引。
+    # 如果 probs 是长度为 K 的一维列表，则每个元素是对该索引处的类进行抽样的相对概率。
     m = Categorical(probs)  # 功能：根据概率分布来产生sample，产生的sample是输入tensor的index
     action = m.sample() #从index中选一个
     policy.saved_log_probs.append(m.log_prob(action))   #取概率的对数，并储存下来
