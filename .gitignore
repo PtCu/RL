@@ -4,3 +4,7 @@ pytorch/mnist/
 Practice/pytorch/mnist/MNIST/processed/test.pt
 actor_eval_params.pkl
 PPO-PyTorch/LICENSE
+reference/*
+.vscode
+file.txt
+params3.pth

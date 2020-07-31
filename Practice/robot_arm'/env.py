@@ -5,8 +5,8 @@ class ArmEnv(object):
     dt = 0.1  #refresh rate
     action_bound = [-1, 1]
     goal = {'x': 100, 'y': 100, 'l': 40}
-    state_dim = 9  # 手臂的动作：上关节和下关节运动
-    action_dim = 2  #可观测的状态：上关节的角度和下关节的角度
+    state_dim = 9  # 可观测的状态：上关节的角度和下关节的角度
+    action_dim = 2  # 手臂的动作：上关节和下关节运动
     
     def __init__(self):
         #（2，2）

@@ -42,7 +42,7 @@ class DQN(object):
         self.optimizer = torch.optim.Adam(self.eval_net.parameters(), lr=LR)  #torch的优化器
         self.loss_func = nn.MSELoss()  #误差公式
         
-    def choose_action(self, x):
+    def choose_action(self, x): #用eval来选动作
         """
         输入：状态x
         输出：动作action
@@ -91,10 +91,13 @@ class DQN(object):
         b_s_ = torch.FloatTensor(b_memory[:, -N_STATES:])
         
         #q_eval w.r.t the action in experience
-        q_eval = self.eval_net(b_s).gather(1, b_a)  #shape (batch,1)    取对角线元素并以列的形式（1维）输出
+        #q_估计
+        q_eval = self.eval_net(b_s).gather(1, b_a)  #shape (batch,1)    
+        #target_net用的是很久之前的参数，用来预测q现实
         q_next = self.target_net(b_s_).detach()  # 输入b_s_以得到下一步的预测动作。detach保持一部分的网络参数不变，切断反向传播
+        #q_现实
         q_target = b_r + GAMMA * q_next.max(1)[0].view(BATCH_SIZE, 1)   #将batch个结果拼接成一行
-        loss = self.loss_func(q_eval, q_target)
+        loss = self.loss_func(q_eval, q_target) #反向传播更新eval_net
         
         self.optimizer.zero_grad()
         loss.backward()

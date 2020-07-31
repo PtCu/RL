@@ -120,7 +120,8 @@ class PPO:
             ratios = torch.exp(logprobs - old_logprobs.detach())  # 重要性权重
                 
             # Finding Surrogate Loss:
-            advantages = rewards - state_values.detach()    #奖励值与估计值做差
+            # 有时候我们不需要知道一个动作的绝对好坏，只需要知道它比其他动作平均好多少。这个概念用优势（advantage）函数表示：
+            advantages = rewards - state_values.detach()
             surr1 = ratios * advantages
             # ratios限制在[1-self.eps_clip, 1+self.eps_clip]
             surr2 = torch.clamp(ratios, 1-self.eps_clip,
