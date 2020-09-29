@@ -8,3 +8,8 @@ reference/*
 .vscode
 file.txt
 params3.pth
+*.dat
+*.txt
+test.py
+data
+logs

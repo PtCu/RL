@@ -44,7 +44,7 @@ r_store = []
 
 
 def choose_action(s):
-    s = torch.from_numpy(s).float().unsqueeze(0)
+    s = torch.from_numpy(s).float().unsqueeze(0)    #state
     probs = policyG_object(s)
     """
     作用是创建以参数probs为标准的类别分布，样本是来自 “0 … K-1” 的整数，其中 K 是probs参数的长度。

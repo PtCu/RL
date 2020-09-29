@@ -79,7 +79,7 @@ class DDPG(object):
 
     def choose_action(self, s):
         s = torch.unsqueeze(torch.FloatTensor(s), 0)
-        return self.Actor_eval(s)[0].detach()  # ae（s）   直接从中选择一个动作，而不是根据概率分布来选
+        return self.Actor_eval(s)[0].detach()  # ae（s）   直接从中选择一个动作
 
     def learn(self):
 
