@@ -61,18 +61,18 @@ class Policy_Domain:
             first_target = torch.remainder(  # 确定夹角  remainder(input,divisor) 返回一个新张量，包含输入input张量每个元素的除法余数，余数与除数有相同的符号。
                 first_perspective - position_target, 360.0)
 
-            average_direction = torch.where(  # 规范化夹角  torch.sign()输入一个张量，如果是正数返回1.0，负数返回-1.0。即如果夹角大于180则直接除以180，否则取互补的角度
+            average_direction = torch.where(  # 确定转动方向  torch.sign()输入一个张量，如果是正数返回1.0，负数返回-1.0。即如果夹角大于180则直接除以180，否则取互补的角度
                 torch.sign(180.0 - first_target) + 1.0 > 0, -first_target / 180.0, (360.0 - first_target) / 180.0)
             variance_direction = 0.1 * average_direction + coefs[0]  # 0.1
 
-            turning_free = torch.where(  # argmin:返回指定维度最小的编号。state[0~9]记录的基本方向上的距离信息。最小距离编号大于5（即即将碰撞的方向为左侧）则取前者（正向加45），否则后者
+            turning_free = torch.where(  # argmin:返回指定维度最小的编号。state[0~9]记录的基本方向上的距离信息。最小距离编号大于5（即即将碰撞的方向为左侧）则取前者（正向加45,外加削减的目标方向），否则后者
                 torch.sign(
                     4 - torch.argmin(state[0:9]).float()) + 1.0 > 0, 45.0 + 0.1 * average_direction,
                 -45.0 + 0.1 * average_direction)  # 0 0.1
             average_free = turning_free / 180.0  # 调整的方向
             variance_free = 0.1 * average_free + coefs[0]  # 0.1
 
-            average_steer = torch.where(  # 最近距离是否大于碰撞距离。如果是不用转向，如果不是就调整方向
+            average_steer = torch.where(  # 最近距离是否大于碰撞距离。如果是则不用转向，如果不是就调整方向
                 torch.sign(100 * torch.min(state[0:9]) - 15.0) + 1.0 > 0, average_direction, average_free)
             variance_steer = torch.where(
                 torch.sign(100 * torch.min(state[0:9]) - 15.0) + 1.0 > 0, variance_direction, variance_free)
@@ -97,19 +97,19 @@ class Policy_Domain:
                 self.min_distance_y = 50.0
 
             if args:
-                coefs = args.variance * 2
+                coefs = [args.variance, args.variance]
                 prior_decay = args.prior_decay
             else:
                 coefs = [0.09, 0.09]
                 prior_decay = 0.005
             time_step = torch.Tensor([time_step])[0]
             perspective = torch.atan(state[12] / state[13])
-            first_perspective = torch.where(state[13] > 0,
+            first_perspective = torch.where(state[13] > 0,  # cos朝向角度 （度数，不是pi
                                             torch.where(state[12] > 0, perspective / np.pi * 180.0,
                                                         (perspective + 2 * np.pi) / np.pi * 180.0),
                                             (perspective + np.pi) / np.pi * 180.0)
 
-            target = torch.atan(state[10] / state[11])
+            target = torch.atan(state[10] / state[11])  # 目标物的绝对角度
             position_target = torch.where(state[11] > 0,
                                           torch.where(state[10] > 0, target / np.pi * 180.0,
                                                       (target + 2 * np.pi) / np.pi * 180.0),
@@ -147,19 +147,19 @@ class Policy_Domain:
                     position_target = 180
 
             first_target = torch.remainder(
-                first_perspective - position_target, 360.0)
+                first_perspective - position_target, 360.0) #position target不同
 
             average_direction = torch.where(
                 torch.sign(180.0 - first_target) + 1.0 > 0, -first_target / 180.0, (360.0 - first_target) / 180.0)
-            variance_direction = 0.0 * average_direction + coefs[0]  # 0.1
+            variance_direction = 0.1 * average_direction + coefs[0]  # 0.1
 
             turning_free = torch.where(
                 torch.sign(
-                    4 - torch.argmin(state[0:9]).float()) + 1.0 > 0, 45.0 + 0 * average_direction,
-                -45.0 + 0 * average_direction)
+                    4 - torch.argmin(state[0:9]).float()) + 1.0 > 0, 45.0 + 0.1 * average_direction,
+                -45.0 + 0.1 * average_direction)
 
             average_free = turning_free / 180.0
-            variance_free = 0.0 * average_free + coefs[0]  # 0.1
+            variance_free = 0.1 * average_free + coefs[0]  # 0.1
             average_steer = torch.where(
                 torch.sign(100 * torch.min(state[0:9]) - 15.0) + 1.0 > 0, average_direction, average_free)
             variance_steer = torch.where(

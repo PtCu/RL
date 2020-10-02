@@ -159,7 +159,7 @@ parser.add_argument(
     help='each interval, cache model into queue (default: 10000)')
 parser.add_argument(
     '--demo_type',
-    default='uav'
+    default='uav_wrong'
 )
 
 parser.add_argument('--use-prior', default=True, action='store_true')
@@ -171,7 +171,7 @@ parser.add_argument('--use-prior', default=True, action='store_true')
 # training was far superior
 
 
-TRAIN = True
+TRAIN = False
 if __name__ == '__main__':
     args = parser.parse_args()
     args.seed = args.seed * 1201
@@ -218,7 +218,8 @@ if __name__ == '__main__':
             p.join()  # 等待都结束
     else:
         p = mp.Process(target=train, args=(
-            -1, args, shared_model, optimizer))  # 单个程序运行，方便调试
+            1, args, shared_model, optimizer))  # 单个程序运行，方便调试
         p.start()
-        p.join()
         time.sleep(0.1)
+        p.join()
+       

@@ -10,7 +10,7 @@ import time
 import logging
 import queue
 from torch.utils.tensorboard import SummaryWriter
-
+import datetime
 
 class Model_Buffer:
     def __init__(self, args):
@@ -49,7 +49,12 @@ class Model_Buffer:
 
 
 def test(rank, args, shared_model):
-    writer = SummaryWriter('8_27_test')
+    #记录图表位置
+    cwd = os.path.dirname(__file__)
+    curTime = datetime.datetime.now().strftime("%Y-%m-%d")
+    dataDir = os.path.join(cwd, 'data', curTime, '_train')
+    writer = SummaryWriter(dataDir)
+
     model_buffer = Model_Buffer(args)
     test_episodes = args.test_episodes
     ptitle('Test Agent')

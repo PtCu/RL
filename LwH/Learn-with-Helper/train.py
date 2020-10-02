@@ -12,7 +12,7 @@ from player_util import Agent
 from torch.autograd import Variable
 import os
 from torch.utils.tensorboard import SummaryWriter
-
+import datetime
 
 def train(rank, args, shared_model, optimizer):  # optimizer为shared_model的
     init = True
@@ -37,7 +37,11 @@ def train(rank, args, shared_model, optimizer):  # optimizer为shared_model的
 
     if rank == 1:
         # file = open(os.path.join(args.log_dir, 'TD_Error.txt'), 'w+')
-        writer=SummaryWriter('8_27_train')
+        cwd = os.path.dirname(__file__)
+        curTime = datetime.datetime.now().strftime("%Y-%m-%d")
+        dataDir=os.path.join(cwd,'data',curTime,'_train')
+        
+        writer = SummaryWriter(dataDir)
 
     local_step_counter = 0
     while True:
