@@ -30,11 +30,13 @@ class QLearningTable:
             action = np.random.choice(self.actions)
         return action
 
+    #s: current state, s_: next state
     def learn(self, s, a, r, s_):
         self.check_state_exist(s_)
         q_predict = self.q_table.loc[s, a]
         if s_ != 'terminal':
             # next state is not terminal
+            # choose the maximum in the next state
             q_target = r + self.gamma * self.q_table.loc[s_, :].max()
         else:
             q_target = r  # next state is terminal

@@ -31,7 +31,7 @@ def update():
             observation_, reward, done = env.step(action)
 
             #RL choose action and get next observation and reward
-            #直接选action了
+            #观察后就直接选action了
             action_=RL.choose_action(str(observation_))
 
             # RL learn from this transition
